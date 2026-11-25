@@ -103,6 +103,10 @@ $user = current_user();
             <i class="fas fa-clock-rotate-left w-5 text-center text-sm <?= ($current_page === 'audit-log.php') ? 'text-church-gold' : 'text-slate-400' ?>"></i>
             <span class="mr-2.5">سجل النشاطات</span>
         </a>
+        <a href="backup.php" class="flex items-center px-3 py-2 text-xs font-semibold rounded-xl transition-all duration-150 <?= ($current_page === 'backup.php') ? 'bg-white/15 text-church-gold border-r-4 border-church-gold shadow-sm' : 'text-slate-300 hover:bg-white/5 hover:text-white' ?>">
+            <i class="fas fa-database w-5 text-center text-sm <?= ($current_page === 'backup.php') ? 'text-church-gold' : 'text-slate-400' ?>"></i>
+            <span class="mr-2.5">النسخ الاحتياطي</span>
+        </a>
         <?php endif; ?>
 
     </nav>

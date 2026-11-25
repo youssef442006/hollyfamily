@@ -8,6 +8,16 @@ require_once __DIR__ . '/includes/functions.php';
 require_role(['admin']);
 $user = current_user();
 
+// تفريغ سجل النشاطات لتوفير المساحة
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clear_audit_logs'])) {
+    require_csrf();
+    $pdo->exec("DELETE FROM audit_logs");
+    record_audit($pdo, 'clear_data', 'system', null, null, 'تم تفريغ سجل النشاطات لتوفير المساحة');
+    set_flash('success', 'تم تفريغ سجل النشاطات بنجاح.');
+    header("Location: audit-log.php");
+    exit;
+}
+
 $user_filter = $_GET['user_id'] ?? '';
 $action_filter = $_GET['action'] ?? '';
 
@@ -49,6 +59,8 @@ $action_labels = [
     'delete'             => ['حذف سجل', 'bg-rose-50 text-rose-700 border-rose-200', 'fa-trash'],
     'merge_persons'      => ['دمج سجلات مكررة', 'bg-purple-50 text-purple-700 border-purple-200', 'fa-code-merge'],
     'clear_data'         => ['تفريغ بيانات', 'bg-red-100 text-red-800 border-red-200', 'fa-triangle-exclamation'],
+    'backup_download'    => ['تحميل نسخة احتياطية', 'bg-emerald-50 text-emerald-700 border-emerald-200', 'fa-download'],
+    'backup_restore'     => ['استرجاع نسخة احتياطية', 'bg-amber-50 text-amber-800 border-amber-200', 'fa-rotate-left'],
 ];
 
 $table_labels = [
@@ -73,7 +85,36 @@ require_once __DIR__ . '/includes/sidebar.php';
         </h1>
         <p class="text-xs text-slate-500 mt-1">متابعة جميع حركات الدخول، الإضافة، التعديل، والحذف في النظام (متاح لمدير النظام فقط)</p>
     </div>
+    <form method="POST" action="audit-log.php" id="clearAuditForm" onsubmit="return confirmClearAudit(event)">
+        <?= csrf_field() ?>
+        <input type="hidden" name="clear_audit_logs" value="1">
+        <button type="submit" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-600 hover:text-white font-bold text-xs shadow-sm transition">
+            <i class="fas fa-broom ml-2"></i>
+            تفريغ سجل النشاطات (توفير المساحة)
+        </button>
+    </form>
 </div>
+
+<script>
+    function confirmClearAudit(e) {
+        e.preventDefault();
+        Swal.fire({
+            title: 'تفريغ سجل النشاطات؟',
+            text: 'سيتم حذف جميع سجلات النشاطات السابقة لتوفير المساحة (لن تتأثر بيانات الأسر أو المخدومين).',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#e11d48',
+            cancelButtonColor: '#15264a',
+            confirmButtonText: 'نعم، فرّغ السجل',
+            cancelButtonText: 'إلغاء'
+        }).then((res) => {
+            if (res.isConfirmed) {
+                document.getElementById('clearAuditForm').submit();
+            }
+        });
+        return false;
+    }
+</script>
 
 <!-- Filters -->
 <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 mb-6">

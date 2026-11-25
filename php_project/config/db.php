@@ -21,8 +21,8 @@ if ($is_local) {
 } else {
     // Hostinger Live Server Settings
     $host = 'localhost';
-    $dbname = 'holly_family';
-    $username = 'holly_family';
+    $dbname = 'u599312455_holly_family';
+    $username = 'u599312455_holly_family';
     $password = 'Hollyfamily@2026';
 }
 $charset = 'utf8mb4';

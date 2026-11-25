@@ -4,10 +4,27 @@
  * اتصال قاعدة بيانات MySQL (XAMPP)
  */
 
-$host = '127.0.0.1';
-$dbname = 'church_management';
-$username = 'root';
-$password = '';
+$http_host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+$is_local = (
+    php_sapi_name() === 'cli' ||
+    str_contains($http_host, 'localhost') ||
+    str_contains($http_host, '127.0.0.1') ||
+    str_contains($http_host, 'ngrok')
+);
+
+if ($is_local) {
+    // Local XAMPP Settings
+    $host = '127.0.0.1';
+    $dbname = 'church_management';
+    $username = 'root';
+    $password = '';
+} else {
+    // Hostinger Live Server Settings
+    $host = 'localhost';
+    $dbname = 'holly_family';
+    $username = 'holly_family';
+    $password = 'Hollyfamily@2026';
+}
 $charset = 'utf8mb4';
 
 $dsn = "mysql:host=$host;dbname=$dbname;charset=$charset";

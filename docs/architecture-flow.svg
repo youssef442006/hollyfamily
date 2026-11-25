@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1480" height="1520" viewBox="0 0 1480 1520" style="background:#fafaf6">
+<rect x="0" y="0" width="1480" height="1520" fill="#fafaf6" stroke="#94a3b8" stroke-width="1" rx="10"/>
+<text x="740" y="42" font-size="28" fill="#1f2937" text-anchor="middle" font-weight="800" font-family="'Segoe UI', Tahoma">كنيستي — مخطط البنية والتسلسل (من الكود الفعلي للمشروع)</text>
+<text x="740" y="68" font-size="14.5" fill="#475569" text-anchor="middle" font-weight="400" font-family="'Segoe UI', Tahoma">React (Vite) → FastAPI (async) → SQLAlchemy → PostgreSQL — كل الأسهم والتفاصيل مأخوذة من الملفات الحقيقية</text>
+<rect x="40" y="100" width="1400" height="210" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.6" rx="10"/>
+<text x="740" y="128" font-size="20" fill="#0c4a6e" text-anchor="middle" font-weight="800" font-family="'Segoe UI', Tahoma">الواجهة الأمامية — React SPA (Vite · المنفذ 5173)</text>
+<text x="740" y="156" font-size="13" fill="#075985" text-anchor="middle" font-weight="400" font-family="'Segoe UI', Tahoma">src/app/** : dashboard · persons · persons/[id]/tree · persons/[id]/family-history · families · families/[id]/tree · families/new</text>
+<text x="740" y="180" font-size="13" fill="#075985" text-anchor="middle" font-weight="400" font-family="'Segoe UI', Tahoma">services · services/[id] · confessions · visits · reports · search · priests · audit · settings · duplicates</text>
+<text x="740" y="206" font-size="14" fill="#0369a1" text-anchor="middle" font-weight="700" font-family="'Segoe UI', Tahoma">src/lib/api.ts → fetch  (BaseURL /api) — يحمل JWT في رأس Authorization أو Cookie access_token (httpOnly)</text>
+<text x="740" y="234" font-size="12.5" fill="#0c4a6e" text-anchor="middle" font-weight="400" font-family="'Segoe UI', Tahoma">AuthContext (login/logout/me) · AuthLayout · Sidebar · FamilyTree · OccupationInput — عربي/إنجليزي (RTL)</text>
+<rect x="40" y="350" width="1400" height="540" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.6" rx="10"/>
+<text x="740" y="376" font-size="20" fill="#78350f" text-anchor="middle" font-weight="800" font-family="'Segoe UI', Tahoma">الخادم الخلفي — FastAPI (uvicorn · المنفذ 8000 · async SQLAlchemy)</text>
+<text x="740" y="406" font-size="14.5" fill="#92400e" text-anchor="middle" font-weight="700" font-family="'Segoe UI', Tahoma">طبقة الحماية (middleware + dependencies) — تُحقن في كل مسار:</text>
+<text x="740" y="426" font-size="13.5" fill="#78350f" text-anchor="middle" font-weight="400" font-family="'Segoe UI', Tahoma">▸ Rate Limiter على login — 5 محاولات فاشلة خلال 5 دقائق = قفل 5 دقائق → 429</text>
+<text x="740" y="456" font-size="13.5" fill="#78350f" text-anchor="middle" font-weight="400" font-family="'Segoe UI', Tahoma">▸ create_access_token → JWT (sub=user.id, role) · من SECRET_KEY المرفوض إذا لم يتغير (أمان!)</text>
+<text x="740" y="486" font-size="13.5" fill="#78350f" text-anchor="middle" font-weight="400" font-family="'Segoe UI', Tahoma">▸ get_current_user ← Cookie access_token أو Bearer → يحل user + is_active</text>
+<text x="740" y="516" font-size="13.5" fill="#78350f" text-anchor="middle" font-weight="400" font-family="'Segoe UI', Tahoma">▸ require_admin_role (admin فقط) · require_editor_role/editor (admin+priest+editor)</text>
+<text x="740" y="546" font-size="13.5" fill="#78350f" text-anchor="middle" font-weight="400" font-family="'Segoe UI', Tahoma">▸ require_servant_crew (خدام/خدامات) · require_moderator (حذف)</text>
+<text x="740" y="576" font-size="13.5" fill="#78350f" text-anchor="middle" font-weight="400" font-family="'Segoe UI', Tahoma">▸ AuditLog — تسجيل كل تغيير (user_id, action, table_name, old/new_value) للـ admin فقط</text>
+<rect x="260" y="614" width="960" height="210" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1" rx="10"/>
+<text x="740" y="636" font-size="15" fill="#334155" text-anchor="middle" font-weight="800" font-family="'Segoe UI', Tahoma">الـ routers — كل group له بادئة /api وفحص دور:</text>
+<text x="280" y="658" font-size="13" fill="#0f172a" text-anchor="start" font-weight="800" font-family="'Segoe UI', Tahoma">• auth</text>
+<text x="890" y="658" font-size="12.5" fill="#0369a1" text-anchor="start" font-weight="400" font-family="'Segoe UI', Tahoma">/api/auth</text>
+<text x="440" y="677" font-size="12" fill="#475569" text-anchor="start" font-weight="400" font-family="'Segoe UI', Tahoma">login · logout · register · me · me/password · me/users  (rate-limited login)</text>
+<text x="280" y="696" font-size="13" fill="#0f172a" text-anchor="start" font-weight="800" font-family="'Segoe UI', Tahoma">• persons</text>
+<text x="890" y="696" font-size="12.5" fill="#0369a1" text-anchor="start" font-weight="400" font-family="'Segoe UI', Tahoma">/api/persons</text>
+<text x="440" y="715" font-size="12" fill="#475569" text-anchor="start" font-weight="400" font-family="'Segoe UI', Tahoma">CRUD · tree · check-duplicate · merge · promote-stages · family-history · create-family</text>
+<text x="280" y="734" font-size="13" fill="#0f172a" text-anchor="start" font-weight="800" font-family="'Segoe UI', Tahoma">• families</text>
+<text x="890" y="734" font-size="12.5" fill="#0369a1" text-anchor="start" font-weight="400" font-family="'Segoe UI', Tahoma">/api/families</text>
+<text x="440" y="753" font-size="12" fill="#475569" text-anchor="start" font-weight="400" font-family="'Segoe UI', Tahoma">CRUD · wizard (إنشاء أسرة+أفراد كاملة) · members · tree · check-duplicate · create-complete</text>
+<text x="280" y="772" font-size="13" fill="#0f172a" text-anchor="start" font-weight="800" font-family="'Segoe UI', Tahoma">• confessions</text>
+<text x="890" y="772" font-size="12.5" fill="#0369a1" text-anchor="start" font-weight="400" font-family="'Segoe UI', Tahoma">/api/confessions</text>
+<text x="440" y="791" font-size="12" fill="#475569" text-anchor="start" font-weight="400" font-family="'Segoe UI', Tahoma">CRUD · complete اعتراف · مرتبطة بـ priests</text>
+<text x="280" y="810" font-size="13" fill="#0f172a" text-anchor="start" font-weight="800" font-family="'Segoe UI', Tahoma">• visits</text>
+<text x="890" y="810" font-size="12.5" fill="#0369a1" text-anchor="start" font-weight="400" font-family="'Segoe UI', Tahoma">/api/visits</text>
+<text x="440" y="829" font-size="12" fill="#475569" text-anchor="start" font-weight="400" font-family="'Segoe UI', Tahoma">CRUD زيارة · ربط family/person/servant · حالة زيارة (home/phone/follow-up)</text>
+<text x="280" y="848" font-size="13" fill="#0f172a" text-anchor="start" font-weight="800" font-family="'Segoe UI', Tahoma">• services</text>
+<text x="890" y="848" font-size="12.5" fill="#0369a1" text-anchor="start" font-weight="400" font-family="'Segoe UI', Tahoma">/api/services</text>
+<text x="440" y="867" font-size="12" fill="#475569" text-anchor="start" font-weight="400" font-family="'Segoe UI', Tahoma">CRUD الأنشطة · الأعضاء · خدمة القدامة · auto-assign</text>
+<text x="280" y="886" font-size="13" fill="#0f172a" text-anchor="start" font-weight="800" font-family="'Segoe UI', Tahoma">• priests</text>
+<text x="890" y="886" font-size="12.5" fill="#0369a1" text-anchor="start" font-weight="400" font-family="'Segoe UI', Tahoma">/api/priests</text>
+<text x="440" y="905" font-size="12" fill="#475569" text-anchor="start" font-weight="400" font-family="'Segoe UI', Tahoma">الكهنوت (priests)</text>
+<text x="280" y="924" font-size="13" fill="#0f172a" text-anchor="start" font-weight="800" font-family="'Segoe UI', Tahoma">• reports</text>
+<text x="890" y="924" font-size="12.5" fill="#0369a1" text-anchor="start" font-weight="400" font-family="'Segoe UI', Tahoma">/api/reports</text>
+<text x="440" y="943" font-size="12" fill="#475569" text-anchor="start" font-weight="400" font-family="'Segoe UI', Tahoma">age-distribution · families · services · neglected · without-service · special-cases · export CSV</text>
+<text x="280" y="962" font-size="13" fill="#0f172a" text-anchor="start" font-weight="800" font-family="'Segoe UI', Tahoma">• persons/duplicates</text>
+<text x="890" y="962" font-size="12.5" fill="#0369a1" text-anchor="start" font-weight="400" font-family="'Segoe UI', Tahoma">/api/persons/duplicates</text>
+<text x="440" y="981" font-size="12" fill="#475569" text-anchor="start" font-weight="400" font-family="'Segoe UI', Tahoma">كشف المكرر (بحسب national_id/phone/الاسم)</text>
+<text x="280" y="1000" font-size="13" fill="#0f172a" text-anchor="start" font-weight="800" font-family="'Segoe UI', Tahoma">• search</text>
+<text x="890" y="1000" font-size="12.5" fill="#0369a1" text-anchor="start" font-weight="400" font-family="'Segoe UI', Tahoma">/api/search</text>
+<text x="440" y="1019" font-size="12" fill="#475569" text-anchor="start" font-weight="400" font-family="'Segoe UI', Tahoma">بحث موحد</text>
+<text x="280" y="1038" font-size="13" fill="#0f172a" text-anchor="start" font-weight="800" font-family="'Segoe UI', Tahoma">• dashboard</text>
+<text x="890" y="1038" font-size="12.5" fill="#0369a1" text-anchor="start" font-weight="400" font-family="'Segoe UI', Tahoma">/api/dashboard</text>
+<text x="440" y="1057" font-size="12" fill="#475569" text-anchor="start" font-weight="400" font-family="'Segoe UI', Tahoma">إحصائيات الرئيسية</text>
+<text x="280" y="1076" font-size="13" fill="#0f172a" text-anchor="start" font-weight="800" font-family="'Segoe UI', Tahoma">• audit</text>
+<text x="890" y="1076" font-size="12.5" fill="#0369a1" text-anchor="start" font-weight="400" font-family="'Segoe UI', Tahoma">/api/audit</text>
+<text x="440" y="1095" font-size="12" fill="#475569" text-anchor="start" font-weight="400" font-family="'Segoe UI', Tahoma">سجل التدقيق (admin only)</text>
+<text x="280" y="1114" font-size="13" fill="#0f172a" text-anchor="start" font-weight="800" font-family="'Segoe UI', Tahoma">• settings</text>
+<text x="890" y="1114" font-size="12.5" fill="#0369a1" text-anchor="start" font-weight="400" font-family="'Segoe UI', Tahoma">/api/settings</text>
+<text x="440" y="1133" font-size="12" fill="#475569" text-anchor="start" font-weight="400" font-family="'Segoe UI', Tahoma">إعدادات النظام + import/export</text>
+<rect x="40" y="930" width="1400" height="260" fill="#dcfce7" stroke="#16a34a" stroke-width="1.6" rx="10"/>
+<text x="740" y="956" font-size="19" fill="#14532d" text-anchor="middle" font-weight="800" font-family="'Segoe UI', Tahoma">قاعدة البيانات — PostgreSQL (async · SQLAlchemy ORM · على هذا الجهاز، مع نسخة SQLite للاختبار)</text>
+<rect x="60.0" y="982" width="213.33333333333334" height="62" fill="#ffffff" stroke="#16a34a" stroke-width="1" rx="10"/>
+<text x="166.0" y="1002" font-size="13.5" fill="#14532d" text-anchor="middle" font-weight="800" font-family="'Segoe UI', Tahoma">persons</text>
+<text x="166.0" y="1030" font-size="11" fill="#334155" text-anchor="middle" font-weight="400" font-family="'Segoe UI', Tahoma">id · family_id · الأسماء · gender · dob · ال…</text>
+<rect x="289.33333333333337" y="982" width="213.33333333333334" height="62" fill="#ffffff" stroke="#16a34a" stroke-width="1" rx="10"/>
+<text x="395.33333333333337" y="1002" font-size="13.5" fill="#14532d" text-anchor="middle" font-weight="800" font-family="'Segoe UI', Tahoma">families</text>
+<text x="395.33333333333337" y="1030" font-size="11" fill="#334155" text-anchor="middle" font-weight="400" font-family="'Segoe UI', Tahoma">id · family_code (فريد) · family_name · العن…</text>
+<rect x="518.6666666666667" y="1060" width="213.33333333333334" height="62" fill="#ffffff" stroke="#16a34a" stroke-width="1" rx="10"/>
+<text x="624.6666666666667" y="1080" font-size="13.5" fill="#14532d" text-anchor="middle" font-weight="800" font-family="'Segoe UI', Tahoma">family_members</text>
+<text x="624.6666666666667" y="1108" font-size="11" fill="#334155" text-anchor="middle" font-weight="400" font-family="'Segoe UI', Tahoma">family_id · person_id · relationship_type (ر…</text>
+<rect x="60.0" y="1060" width="213.33333333333334" height="62" fill="#ffffff" stroke="#16a34a" stroke-width="1" rx="10"/>
+<text x="166.0" y="1080" font-size="13.5" fill="#14532d" text-anchor="middle" font-weight="800" font-family="'Segoe UI', Tahoma">person_relationships</text>
+<text x="166.0" y="1108" font-size="11" fill="#334155" text-anchor="middle" font-weight="400" font-family="'Segoe UI', Tahoma">person_id ↔ related_person_id · relationship…</text>
+<rect x="289.33333333333337" y="1060" width="213.33333333333334" height="62" fill="#ffffff" stroke="#16a34a" stroke-width="1" rx="10"/>
+<text x="395.33333333333337" y="1080" font-size="13.5" fill="#14532d" text-anchor="middle" font-weight="800" font-family="'Segoe UI', Tahoma">users</text>
+<text x="395.33333333333337" y="1108" font-size="11" fill="#334155" text-anchor="middle" font-weight="400" font-family="'Segoe UI', Tahoma">id · username · hashed_password · role (admi…</text>
+<rect x="518.6666666666667" y="1138" width="213.33333333333334" height="62" fill="#ffffff" stroke="#16a34a" stroke-width="1" rx="10"/>
+<text x="624.6666666666667" y="1158" font-size="13.5" fill="#14532d" text-anchor="middle" font-weight="800" font-family="'Segoe UI', Tahoma">services</text>
+<text x="624.6666666666667" y="1186" font-size="11" fill="#334155" text-anchor="middle" font-weight="400" font-family="'Segoe UI', Tahoma">id · name · المدة العمرية · gender_restricti…</text>
+<rect x="60.0" y="1138" width="213.33333333333334" height="62" fill="#ffffff" stroke="#16a34a" stroke-width="1" rx="10"/>
+<text x="166.0" y="1158" font-size="13.5" fill="#14532d" text-anchor="middle" font-weight="800" font-family="'Segoe UI', Tahoma">service_assignments</text>
+<text x="166.0" y="1186" font-size="11" fill="#334155" text-anchor="middle" font-weight="400" font-family="'Segoe UI', Tahoma">person_id · service_id · status · ⏺ عبر Serv…</text>
+<rect x="289.33333333333337" y="1138" width="213.33333333333334" height="62" fill="#ffffff" stroke="#16a34a" stroke-width="1" rx="10"/>
+<text x="395.33333333333337" y="1158" font-size="13.5" fill="#14532d" text-anchor="middle" font-weight="800" font-family="'Segoe UI', Tahoma">confessions</text>
+<text x="395.33333333333337" y="1186" font-size="11" fill="#334155" text-anchor="middle" font-weight="400" font-family="'Segoe UI', Tahoma">id · person_id · priest_id · confession_date…</text>
+<rect x="518.6666666666667" y="1216" width="213.33333333333334" height="62" fill="#ffffff" stroke="#16a34a" stroke-width="1" rx="10"/>
+<text x="624.6666666666667" y="1236" font-size="13.5" fill="#14532d" text-anchor="middle" font-weight="800" font-family="'Segoe UI', Tahoma">visits</text>
+<text x="624.6666666666667" y="1264" font-size="11" fill="#334155" text-anchor="middle" font-weight="400" font-family="'Segoe UI', Tahoma">id · family_id/person_id · servant_id · visi…</text>
+<rect x="60.0" y="1216" width="213.33333333333334" height="62" fill="#ffffff" stroke="#16a34a" stroke-width="1" rx="10"/>
+<text x="166.0" y="1236" font-size="13.5" fill="#14532d" text-anchor="middle" font-weight="800" font-family="'Segoe UI', Tahoma">priests</text>
+<text x="166.0" y="1264" font-size="11" fill="#334155" text-anchor="middle" font-weight="400" font-family="'Segoe UI', Tahoma">id · person_id · display_name · phone</text>
+<rect x="289.33333333333337" y="1216" width="213.33333333333334" height="62" fill="#ffffff" stroke="#16a34a" stroke-width="1" rx="10"/>
+<text x="395.33333333333337" y="1236" font-size="13.5" fill="#14532d" text-anchor="middle" font-weight="800" font-family="'Segoe UI', Tahoma">audit_logs</text>
+<text x="395.33333333333337" y="1264" font-size="11" fill="#334155" text-anchor="middle" font-weight="400" font-family="'Segoe UI', Tahoma">id · user_id · action · table_name · record_…</text>
+<rect x="518.6666666666667" y="1294" width="213.33333333333334" height="62" fill="#ffffff" stroke="#16a34a" stroke-width="1" rx="10"/>
+<text x="624.6666666666667" y="1314" font-size="13.5" fill="#14532d" text-anchor="middle" font-weight="800" font-family="'Segoe UI', Tahoma">settings</text>
+<text x="624.6666666666667" y="1342" font-size="11" fill="#334155" text-anchor="middle" font-weight="400" font-family="'Segoe UI', Tahoma">key · value · description</text>
+<line x1="740" y1="310" x2="740" y2="350" stroke="#0284c7" stroke-width="2.2" fill="none"/><polygon points="740,350 735.0,339.0 745.0,339.0" fill="#0284c7"/><text x="740" y="340" font-size="12.5" fill="#334155" text-anchor="middle" font-weight="700" font-family="'Segoe UI', Tahoma">طلبات HTTP: POST /api/auth/login → ثم GET/POST /api/**  مع JWT</text>
+<line x1="740" y1="890" x2="740" y2="930" stroke="#16a34a" stroke-width="2.2" fill="none"/><polygon points="740,930 735.0,919.0 745.0,919.0" fill="#16a34a"/><text x="740" y="920" font-size="12.5" fill="#334155" text-anchor="middle" font-weight="700" font-family="'Segoe UI', Tahoma">استعلامات SQL عبر AsyncSession (get_db · asyncpg)</text>
+<text x="740" y="1480" font-size="12.5" fill="#94a3b8" text-anchor="middle" font-weight="400" font-family="'Segoe UI', Tahoma">المخطط مولّد آليًا من الشيفرة المصدرية الفعلية — D:\كنيستي (backend + frontend + PostgreSQL · SQLite للاختبار)</text>
+</svg>

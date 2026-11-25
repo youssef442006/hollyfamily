@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+    .navy-gradient {
+        background: linear-gradient(135deg, #0f1b36 0%, #15264a 50%, #1e3766 100%);
+    }
+    .gold-gradient {
+        background: linear-gradient(135deg, #c9a44c 0%, #dfbe6c 100%);
+    }
+}

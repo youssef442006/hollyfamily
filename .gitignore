@@ -1,0 +1,24 @@
+# Node / Next.js
+node_modules/
+.next/
+out/
+npm-debug.log*
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Environment & Secrets
+.env
+.env.local
+.env.*.local
+
+# Temporary Office / OS / IDE Files
+~$*
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

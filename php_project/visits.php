@@ -89,9 +89,24 @@ $families = $pdo->query("SELECT id, family_name, family_code FROM families WHERE
 // Fetch Persons for dropdown
 $persons = $pdo->query("SELECT id, first_name, middle_name, last_name, phone FROM persons WHERE is_active = 1 ORDER BY first_name ASC")->fetchAll();
 
-// Filter
+// Tab & Filter
+$tab = $_GET['tab'] ?? 'log';
 $type_filter = $_GET['type'] ?? '';
 $status_filter = $_GET['status'] ?? '';
+
+// الأسر المتأخرة عن الافتقاد (أكثر من 60 يوم بدون زيارة مكتملة وليس لها موعد قادم)
+$overdue_families = $pdo->query("
+    SELECT f.id, f.family_name, f.area, f.phone,
+           (SELECT p.phone FROM family_members fm JOIN persons p ON fm.person_id = p.id WHERE fm.family_id = f.id AND fm.is_head = 1 AND fm.is_deleted = 0 LIMIT 1) AS head_phone,
+           MAX(CASE WHEN v.status = 'completed' THEN v.visit_date END) AS last_visit_date,
+           SUM(CASE WHEN v.status IN ('scheduled', 'pending') THEN 1 ELSE 0 END) AS scheduled_cnt
+    FROM families f
+    LEFT JOIN visits v ON f.id = v.family_id
+    WHERE f.is_active = 1
+    GROUP BY f.id
+    HAVING scheduled_cnt = 0 AND (last_visit_date IS NULL OR last_visit_date < DATE_SUB(NOW(), INTERVAL 60 DAY))
+    ORDER BY last_visit_date ASC, f.id ASC
+")->fetchAll();
 
 $sql = "
     SELECT v.*, 
@@ -137,6 +152,87 @@ require_once __DIR__ . '/includes/sidebar.php';
         </button>
     </div>
 </div>
+
+<!-- Tabs: سجل الزيارات | المتأخرين عن الافتقاد (+60 يوم) -->
+<div class="flex flex-wrap items-center gap-2 mb-5">
+    <a href="visits.php?tab=log" class="px-4 py-2 rounded-xl text-xs font-extrabold transition <?= $tab !== 'overdue' ? 'bg-church-navy text-white shadow-sm' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50' ?>">
+        <i class="fas fa-list ml-1.5"></i> سجل الافتقادات (<?= count($visits) ?>)
+    </a>
+    <a href="visits.php?tab=overdue" class="px-4 py-2 rounded-xl text-xs font-extrabold transition flex items-center gap-2 <?= $tab === 'overdue' ? 'bg-rose-600 text-white shadow-sm' : 'bg-white text-rose-700 border border-rose-200 hover:bg-rose-50' ?>">
+        <i class="fas fa-bell"></i>
+        <span>أسر متأخرة عن الافتقاد (+60 يوم)</span>
+        <span class="px-2 py-0.5 rounded-full text-[10px] <?= $tab === 'overdue' ? 'bg-white text-rose-700' : 'bg-rose-100 text-rose-800' ?>"><?= count($overdue_families) ?></span>
+    </a>
+</div>
+
+<?php if ($tab === 'overdue'): ?>
+<!-- Overdue Families Table + Ready WhatsApp -->
+<div class="bg-white rounded-2xl shadow-sm border border-rose-200/80 overflow-hidden mb-6">
+    <div class="p-4 bg-rose-50/70 border-b border-rose-100 flex items-center justify-between">
+        <p class="text-xs font-bold text-rose-900">
+            <i class="fas fa-circle-info ml-1.5 text-rose-600"></i>
+            هذه الأسر لم تتم زيارتها منذ أكثر من 60 يوماً (أو لم تُزر من قبل) ولا يوجد لها موعد قادم مجدول.
+        </p>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-right border-collapse">
+            <thead>
+                <tr class="bg-slate-50/80 border-b border-slate-200/80 text-xs font-bold text-slate-600">
+                    <th class="p-4">الأسرة</th>
+                    <th class="p-4">المنطقة</th>
+                    <th class="p-4">آخر زيارة</th>
+                    <th class="p-4 text-center">إجراء سريع</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-sm">
+                <?php if (empty($overdue_families)): ?>
+                <tr>
+                    <td colspan="4" class="p-10 text-center text-emerald-700 font-bold text-xs">
+                        <i class="fas fa-check-circle text-2xl mb-2 block text-emerald-500"></i>
+                        ممتاز! لا توجد أسر متأخرة عن الافتقاد حالياً.
+                    </td>
+                </tr>
+                <?php else: ?>
+                    <?php foreach ($overdue_families as $of): 
+                        $raw_phone = $of['head_phone'] ?: $of['phone'];
+                        $wa = preg_replace('/[^0-9]/', '', (string)$raw_phone);
+                        if (str_starts_with($wa, '01')) $wa = '20' . substr($wa, 1);
+                        $wa_msg = urlencode("سلام ونعمة يا " . $of['family_name'] . "، بنسأل عليكم ونطمن على أخباركم من كنيسة العائلة المقدسة، نتمنى تكونوا بخير دايماً ❤️");
+                    ?>
+                    <tr class="hover:bg-slate-50/60 transition">
+                        <td class="p-4 font-bold text-slate-900">
+                            <a href="family-details.php?id=<?= $of['id'] ?>" class="text-church-blue hover:underline">
+                                <?= htmlspecialchars($of['family_name']) ?>
+                            </a>
+                        </td>
+                        <td class="p-4 text-xs text-slate-600"><?= htmlspecialchars($of['area'] ?: '-') ?></td>
+                        <td class="p-4 text-xs">
+                            <?php if ($of['last_visit_date']): ?>
+                                <span class="px-2.5 py-1 bg-rose-100 text-rose-800 rounded-full font-bold">منذ <?= floor((time() - strtotime($of['last_visit_date'])) / 86400) ?> يوم</span>
+                            <?php else: ?>
+                                <span class="px-2.5 py-1 bg-amber-100 text-amber-800 rounded-full font-bold">لم تُزر من قبل</span>
+                            <?php endif; ?>
+                        </td>
+                        <td class="p-4 text-center">
+                            <div class="inline-flex flex-wrap items-center justify-center gap-2">
+                                <?php if (!empty($wa)): ?>
+                                <a href="https://wa.me/<?= $wa ?>?text=<?= $wa_msg ?>" target="_blank" class="px-3 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-xl text-xs font-bold inline-flex items-center">
+                                    <i class="fab fa-whatsapp ml-1.5 text-sm"></i> رسالة افتقاد
+                                </a>
+                                <?php endif; ?>
+                                <a href="visits.php?family_id=<?= $of['id'] ?>&action=new" class="px-3 py-1.5 bg-church-navy text-white hover:bg-church-blue rounded-xl text-xs font-bold inline-flex items-center">
+                                    <i class="fas fa-plus ml-1"></i> تسجيل زيارة
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+</div>
+<?php else: ?>
 
 <!-- Filters Bar -->
 <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 mb-6 flex flex-wrap gap-3 items-center">
@@ -245,6 +341,7 @@ require_once __DIR__ . '/includes/sidebar.php';
         </table>
     </div>
 </div>
+<?php endif; ?>
 
 <!-- Modal: Add Visit -->
 <div id="visitModal" class="fixed inset-0 bg-slate-900/50 z-50 flex items-center justify-center p-4 hidden">

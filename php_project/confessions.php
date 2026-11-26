@@ -39,9 +39,24 @@ $priests = $pdo->query("SELECT * FROM priests WHERE is_active = 1 ORDER BY displ
 // Fetch Persons for dropdown (مع أب الاعتراف المسجل لاختياره تلقائياً)
 $persons_list = $pdo->query("SELECT id, first_name, middle_name, last_name, phone, confession_father, confession_church FROM persons WHERE is_active = 1 ORDER BY first_name ASC")->fetchAll();
 
-// Filter
+// Tab & Filter
+$tab = $_GET['tab'] ?? 'log';
 $priest_filter = $_GET['priest_id'] ?? '';
 $status_filter = $_GET['status'] ?? '';
+
+// المتأخرين عن الاعتراف (+40 يوم أو موعد قادم فات)
+$overdue_confessions = $pdo->query("
+    SELECT p.id, p.first_name, p.middle_name, p.last_name, p.phone, p.confession_father,
+           MAX(CASE WHEN c.status = 'completed' THEN c.confession_date END) AS last_confession_date,
+           MAX(c.next_confession_date) AS next_date
+    FROM persons p
+    LEFT JOIN confessions c ON p.id = c.person_id
+    WHERE p.is_active = 1 AND p.is_deceased = 0
+      AND (p.confession_father LIKE '%سارافيم%' OR p.confession_father LIKE '%جوزيف%' OR c.id IS NOT NULL)
+    GROUP BY p.id
+    HAVING (last_confession_date IS NULL OR last_confession_date < DATE_SUB(NOW(), INTERVAL 40 DAY) OR (next_date IS NOT NULL AND next_date < CURDATE()))
+    ORDER BY last_confession_date ASC, p.first_name ASC
+")->fetchAll();
 
 $sql = "
     SELECT c.*, p.first_name, p.middle_name, p.last_name, p.phone, pr.display_name AS priest_name
@@ -83,6 +98,88 @@ require_once __DIR__ . '/includes/sidebar.php';
         </button>
     </div>
 </div>
+
+<!-- Tabs: سجل الاعترافات | المتأخرين عن الاعتراف (+40 يوم) -->
+<div class="flex flex-wrap items-center gap-2 mb-5">
+    <a href="confessions.php?tab=log" class="px-4 py-2 rounded-xl text-xs font-extrabold transition <?= $tab !== 'overdue' ? 'bg-church-navy text-white shadow-sm' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50' ?>">
+        <i class="fas fa-list ml-1.5"></i> سجل الاعترافات (<?= count($confessions) ?>)
+    </a>
+    <a href="confessions.php?tab=overdue" class="px-4 py-2 rounded-xl text-xs font-extrabold transition flex items-center gap-2 <?= $tab === 'overdue' ? 'bg-amber-600 text-white shadow-sm' : 'bg-white text-amber-800 border border-amber-200 hover:bg-amber-50' ?>">
+        <i class="fas fa-bell"></i>
+        <span>متأخرين عن الاعتراف (+40 يوم)</span>
+        <span class="px-2 py-0.5 rounded-full text-[10px] <?= $tab === 'overdue' ? 'bg-white text-amber-800' : 'bg-amber-100 text-amber-900' ?>"><?= count($overdue_confessions) ?></span>
+    </a>
+</div>
+
+<?php if ($tab === 'overdue'): ?>
+<!-- Overdue Confessions Table + Ready WhatsApp -->
+<div class="bg-white rounded-2xl shadow-sm border border-amber-200/80 overflow-hidden mb-6">
+    <div class="p-4 bg-amber-50/70 border-b border-amber-100">
+        <p class="text-xs font-bold text-amber-900">
+            <i class="fas fa-circle-info ml-1.5 text-amber-600"></i>
+            مخدومون مرتبطون بآباء الكنيسة مرّ أكثر من 40 يوماً على آخر اعتراف مسجل لهم (أو فات موعدهم القادم).
+        </p>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-right border-collapse">
+            <thead>
+                <tr class="bg-slate-50/80 border-b border-slate-200/80 text-xs font-bold text-slate-600">
+                    <th class="p-4">المخدوم</th>
+                    <th class="p-4">أب الاعتراف</th>
+                    <th class="p-4">آخر اعتراف</th>
+                    <th class="p-4 text-center">إجراء سريع</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-sm">
+                <?php if (empty($overdue_confessions)): ?>
+                <tr>
+                    <td colspan="4" class="p-10 text-center text-emerald-700 font-bold text-xs">
+                        <i class="fas fa-check-circle text-2xl mb-2 block text-emerald-500"></i>
+                        ممتاز! لا يوجد متأخرون عن الاعتراف حالياً.
+                    </td>
+                </tr>
+                <?php else: ?>
+                    <?php foreach ($overdue_confessions as $oc): 
+                        $oc_name = trim($oc['first_name'] . ' ' . ($oc['middle_name'] ?? '') . ' ' . ($oc['last_name'] ?? ''));
+                        $wa = preg_replace('/[^0-9]/', '', (string)$oc['phone']);
+                        if (str_starts_with($wa, '01')) $wa = '20' . substr($wa, 1);
+                        $father_txt = $oc['confession_father'] ?: 'أب الاعتراف';
+                        $wa_msg = urlencode("سلام ونعمة يا " . $oc['first_name'] . "، بنفكرك بميعاد الاعتراف مع " . $father_txt . " في كنيسة العائلة المقدسة، ربنا يبارك حياتك 🙏");
+                    ?>
+                    <tr class="hover:bg-slate-50/60 transition">
+                        <td class="p-4 font-bold text-slate-900">
+                            <a href="person-details.php?id=<?= $oc['id'] ?>" class="text-church-blue hover:underline">
+                                <?= htmlspecialchars($oc_name) ?>
+                            </a>
+                        </td>
+                        <td class="p-4 text-xs text-slate-700 font-semibold"><?= htmlspecialchars($father_txt) ?></td>
+                        <td class="p-4 text-xs">
+                            <?php if ($oc['last_confession_date']): ?>
+                                <span class="px-2.5 py-1 bg-amber-100 text-amber-900 rounded-full font-bold">منذ <?= floor((time() - strtotime($oc['last_confession_date'])) / 86400) ?> يوم</span>
+                            <?php else: ?>
+                                <span class="px-2.5 py-1 bg-slate-100 text-slate-700 rounded-full font-bold">لم يُسجل بعد</span>
+                            <?php endif; ?>
+                        </td>
+                        <td class="p-4 text-center">
+                            <div class="inline-flex flex-wrap items-center justify-center gap-2">
+                                <?php if (!empty($wa)): ?>
+                                <a href="https://wa.me/<?= $wa ?>?text=<?= $wa_msg ?>" target="_blank" class="px-3 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-xl text-xs font-bold inline-flex items-center">
+                                    <i class="fab fa-whatsapp ml-1.5 text-sm"></i> تذكير واتساب
+                                </a>
+                                <?php endif; ?>
+                                <a href="confessions.php?person_id=<?= $oc['id'] ?>&action=new" class="px-3 py-1.5 bg-church-navy text-white hover:bg-church-blue rounded-xl text-xs font-bold inline-flex items-center">
+                                    <i class="fas fa-plus ml-1"></i> تسجيل اعتراف
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+</div>
+<?php else: ?>
 
 <!-- Filters Bar -->
 <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 mb-6 flex flex-wrap gap-3 items-center">
@@ -172,6 +269,7 @@ require_once __DIR__ . '/includes/sidebar.php';
         </table>
     </div>
 </div>
+<?php endif; ?>
 
 <!-- Modal: Add Confession -->
 <div id="confessionModal" class="fixed inset-0 bg-slate-900/50 z-50 flex items-center justify-center p-4 hidden">

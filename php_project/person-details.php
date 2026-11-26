@@ -72,10 +72,17 @@ require_once __DIR__ . '/includes/sidebar.php';
         <i class="fas fa-chevron-left text-xs text-slate-400"></i>
         <span class="font-bold text-slate-900"><?= htmlspecialchars($full_name) ?></span>
     </div>
-    <div class="flex items-center space-x-2 space-x-reverse">
+    <div class="flex flex-wrap items-center gap-2">
+        <?php if (can_access('families_edit') && empty($person['is_deceased'])): ?>
+        <a href="marriage.php?person_id=<?= $person_id ?>" class="px-3.5 py-2 gold-gradient text-church-navy rounded-xl text-xs font-extrabold hover:brightness-105 transition shadow-sm">
+            <i class="fas fa-rings-wedding ml-1.5"></i> تسجيل زواج / فتح أسرة
+        </a>
+        <?php endif; ?>
+        <?php if (can_access('confessions')): ?>
         <a href="confessions.php?person_id=<?= $person_id ?>&action=new" class="px-3.5 py-2 bg-amber-600 text-white rounded-xl text-xs font-bold hover:bg-amber-700 transition">
             <i class="fas fa-hands-praying ml-1.5"></i> تسجيل اعتراف
         </a>
+        <?php endif; ?>
         <a href="visits.php?person_id=<?= $person_id ?>&action=new" class="px-3.5 py-2 bg-church-navy text-white rounded-xl text-xs font-bold hover:bg-church-blue transition">
             <i class="fas fa-person-walking ml-1.5"></i> تسجيل افتقاد
         </a>

@@ -318,18 +318,15 @@ require_once __DIR__ . '/includes/sidebar.php';
             <?= csrf_field() ?>
             <input type="hidden" name="add_member" value="1">
 
-            <div class="grid grid-cols-3 gap-2">
+            <input type="hidden" name="last_name" value="">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">الاسم الأول *</label>
                     <input type="text" name="first_name" required placeholder="الاسم" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">اسم الأب</label>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">اسم الأب (إن وجد)</label>
                     <input type="text" name="middle_name" placeholder="الأب" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">اللقب</label>
-                    <input type="text" name="last_name" placeholder="اللقب" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm">
                 </div>
             </div>
 

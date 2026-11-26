@@ -405,20 +405,25 @@ require_once __DIR__ . '/includes/sidebar.php';
             <?= csrf_field() ?>
             <input type="hidden" name="update_person" value="1">
 
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <input type="hidden" name="last_name" value="">
+            <?php if (!empty($person['middle_name'])): ?>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">الاسم الأول / بالكامل *</label>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">الاسم الأول *</label>
                     <input type="text" name="first_name" required value="<?= htmlspecialchars($person['first_name'] ?? '') ?>" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-bold">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">اسم الأب (إن وجد)</label>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">اسم الأب</label>
                     <input type="text" name="middle_name" value="<?= htmlspecialchars($person['middle_name'] ?? '') ?>" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm">
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">اللقب (اختياري)</label>
-                    <input type="text" name="last_name" value="<?= htmlspecialchars($person['last_name'] ?? '') ?>" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm">
-                </div>
             </div>
+            <?php else: ?>
+            <div>
+                <input type="hidden" name="middle_name" value="">
+                <label class="block text-xs font-bold text-slate-700 mb-1">الاسم بالكامل *</label>
+                <input type="text" name="first_name" required value="<?= htmlspecialchars($person['first_name'] ?? '') ?>" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-bold">
+            </div>
+            <?php endif; ?>
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
@@ -481,14 +486,18 @@ require_once __DIR__ . '/includes/sidebar.php';
                 </div>
             </div>
 
+            <datalist id="editConfessionList">
+                <option value="أبونا سارافيم">
+                <option value="أبونا جوزيف">
+            </datalist>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">أب الاعتراف</label>
-                    <input type="text" name="confession_father" value="<?= htmlspecialchars($person['confession_father'] ?? '') ?>" placeholder="أبونا سارافيم / أبونا جوزيف..." class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm">
+                    <input type="text" name="confession_father" list="editConfessionList" oninput="if(this.value.includes('سارافيم')||this.value.includes('جوزيف')) document.getElementById('editConfChurch').value='كنيسة العائلة المقدسة'" value="<?= htmlspecialchars($person['confession_father'] ?? '') ?>" placeholder="أبونا سارافيم / أبونا جوزيف..." class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">كنيسة أب الاعتراف</label>
-                    <input type="text" name="confession_church" value="<?= htmlspecialchars($person['confession_church'] ?? '') ?>" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm">
+                    <input type="text" name="confession_church" id="editConfChurch" value="<?= htmlspecialchars($person['confession_church'] ?? '') ?>" placeholder="كنيسة العائلة المقدسة" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">الحالة الخاصة / الرعاية</label>

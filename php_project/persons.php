@@ -320,18 +320,15 @@ require_once __DIR__ . '/includes/sidebar.php';
             <?= csrf_field() ?>
             <input type="hidden" name="id" id="p_id" value="">
 
-            <div class="grid grid-cols-3 gap-2">
+            <input type="hidden" name="last_name" id="p_last" value="">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">الاسم الأول *</label>
-                    <input type="text" name="first_name" id="p_first" required class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm">
+                    <label class="block text-xs font-bold text-slate-700 mb-1">الاسم الأول / بالكامل *</label>
+                    <input type="text" name="first_name" id="p_first" required class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-bold">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">اسم الأب</label>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">اسم الأب (إن وجد)</label>
                     <input type="text" name="middle_name" id="p_mid" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">اللقب</label>
-                    <input type="text" name="last_name" id="p_last" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm">
                 </div>
             </div>
 
@@ -341,7 +338,7 @@ require_once __DIR__ . '/includes/sidebar.php';
                     <select name="family_id" id="p_family" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm">
                         <option value="">بدون أسرة (مستقل)</option>
                         <?php foreach ($families as $fam): ?>
-                            <option value="<?= $fam['id'] ?>"><?= htmlspecialchars($fam['family_name']) ?> (<?= $fam['family_code'] ?>)</option>
+                            <option value="<?= $fam['id'] ?>"><?= htmlspecialchars($fam['family_name']) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>

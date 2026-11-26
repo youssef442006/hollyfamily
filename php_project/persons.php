@@ -37,6 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $national_id = trim($_POST['national_id'] ?? '');
     $marital_status = !empty($_POST['marital_status']) ? $_POST['marital_status'] : null;
     $education_stage = !empty($_POST['education_stage']) ? $_POST['education_stage'] : null;
+    $qualification = trim($_POST['qualification'] ?? '') ?: null;
     $occupation = trim($_POST['occupation'] ?? '');
     $confession_father = trim($_POST['confession_father'] ?? '');
     $weekly_leave = !empty($_POST['weekly_leave']) ? implode(',', (array)$_POST['weekly_leave']) : null;
@@ -54,14 +55,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 UPDATE persons SET
                     family_id = ?, first_name = ?, middle_name = ?, last_name = ?, gender = ?,
                     date_of_birth = ?, phone = ?, whatsapp = ?, national_id = ?, marital_status = ?,
-                    education_stage = ?, occupation = ?, confession_father = ?, weekly_leave = ?, is_deacon = ?,
+                    education_stage = ?, qualification = ?, occupation = ?, confession_father = ?, weekly_leave = ?, is_deacon = ?,
                     is_servant = ?, in_prep_center = ?, notes = ?
                 WHERE id = ?
             ");
             $stmt->execute([
                 $family_id, $first_name, $middle_name, $last_name, $gender,
                 $dob, $phone, $whatsapp, $national_id ?: null, $marital_status,
-                $education_stage, $occupation, $confession_father, $weekly_leave, $is_deacon,
+                $education_stage, $qualification, $occupation, $confession_father, $weekly_leave, $is_deacon,
                 $is_servant, $in_prep_center, $notes, $id
             ]);
             record_audit($pdo, 'update', 'persons', $id);
@@ -72,14 +73,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 INSERT INTO persons (
                     family_id, first_name, middle_name, last_name, gender,
                     date_of_birth, phone, whatsapp, national_id, marital_status,
-                    education_stage, occupation, confession_father, weekly_leave, is_deacon,
+                    education_stage, qualification, occupation, confession_father, weekly_leave, is_deacon,
                     is_servant, in_prep_center, notes
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ");
             $stmt->execute([
                 $family_id, $first_name, $middle_name, $last_name, $gender,
                 $dob, $phone, $whatsapp, $national_id ?: null, $marital_status,
-                $education_stage, $occupation, $confession_father, $weekly_leave, $is_deacon,
+                $education_stage, $qualification, $occupation, $confession_father, $weekly_leave, $is_deacon,
                 $is_servant, $in_prep_center, $notes
             ]);
             $new_id = $pdo->lastInsertId();
@@ -353,15 +354,9 @@ require_once __DIR__ . '/includes/sidebar.php';
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-3">
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">تاريخ الميلاد</label>
-                    <input type="date" name="dob" id="p_dob" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">الرقم القومي (14 رقم)</label>
-                    <input type="text" name="national_id" id="p_nid" maxlength="14" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-mono">
-                </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">تاريخ الميلاد</label>
+                <input type="date" name="dob" id="p_dob" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm">
             </div>
 
             <div class="grid grid-cols-2 gap-3">
@@ -392,9 +387,14 @@ require_once __DIR__ . '/includes/sidebar.php';
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">المهنة / الدراسة</label>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">المهنة / العمل</label>
                     <input type="text" name="occupation" id="p_occ" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm">
                 </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">المؤهل الدراسي / الكلية</label>
+                <input type="text" name="qualification" id="p_qual" placeholder="مثال: بكالوريوس تجارة، ليسانس آداب، دبلوم..." class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm">
             </div>
 
             <div>
@@ -413,7 +413,7 @@ require_once __DIR__ . '/includes/sidebar.php';
             <div class="flex items-center space-x-6 space-x-reverse pt-2">
                 <label class="flex items-center space-x-2 space-x-reverse cursor-pointer">
                     <input type="checkbox" name="is_deacon" id="p_deacon" class="w-4 h-4 rounded text-church-navy focus:ring-church-gold">
-                    <span class="text-xs font-bold text-slate-700">شماس مرسوم</span>
+                    <span class="text-xs font-bold text-slate-700">شماس</span>
                 </label>
                 <label class="flex items-center space-x-2 space-x-reverse cursor-pointer">
                     <input type="checkbox" name="is_servant" id="p_servant" class="w-4 h-4 rounded text-church-navy focus:ring-church-gold">
@@ -447,7 +447,6 @@ require_once __DIR__ . '/includes/sidebar.php';
         document.getElementById('p_family').value = '';
         document.getElementById('p_gender').value = 'male';
         document.getElementById('p_dob').value = '';
-        document.getElementById('p_nid').value = '';
         document.getElementById('p_phone').value = '';
         document.getElementById('p_wa').value = '';
         document.getElementById('p_stage').value = '';
@@ -468,10 +467,10 @@ require_once __DIR__ . '/includes/sidebar.php';
         document.getElementById('p_family').value = p.family_id || '';
         document.getElementById('p_gender').value = p.gender || 'male';
         document.getElementById('p_dob').value = p.date_of_birth || '';
-        document.getElementById('p_nid').value = p.national_id || '';
         document.getElementById('p_phone').value = p.phone || '';
         document.getElementById('p_wa').value = p.whatsapp || '';
         document.getElementById('p_stage').value = p.education_stage || '';
+        document.getElementById('p_qual').value = p.qualification || '';
         document.getElementById('p_occ').value = p.occupation || '';
         document.getElementById('p_conf').value = p.confession_father || '';
         document.getElementById('p_deacon').checked = (p.is_deacon == 1);

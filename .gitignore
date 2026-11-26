@@ -18,6 +18,7 @@ venv/
 # Temporary Office / OS / IDE Files
 ~$*
 *.log
+church_backup_with_data.sql
 .DS_Store
 Thumbs.db
 .vscode/

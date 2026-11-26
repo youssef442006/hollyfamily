@@ -78,6 +78,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['restore_backup'])) {
     }
 
     $sql_content = file_get_contents($_FILES['backup_file']['tmp_name']);
+    // إزالة BOM أو التحويل من UTF-16 إذا كان الملف مصدّراً من PowerShell أو Windows
+    if (str_starts_with($sql_content, "\xFF\xFE")) {
+        $sql_content = mb_convert_encoding(substr($sql_content, 2), 'UTF-8', 'UTF-16LE');
+    } elseif (str_starts_with($sql_content, "\xFE\xFF")) {
+        $sql_content = mb_convert_encoding(substr($sql_content, 2), 'UTF-8', 'UTF-16BE');
+    } elseif (str_starts_with($sql_content, "\xEF\xBB\xBF")) {
+        $sql_content = substr($sql_content, 3);
+    }
+
     if (empty(trim($sql_content))) {
         set_flash('error', 'ملف النسخة الاحتياطية فارغ.');
         header("Location: backup.php");

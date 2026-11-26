@@ -122,11 +122,28 @@ require_once __DIR__ . '/includes/sidebar.php';
 <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200/80 mb-8">
     <div class="flex flex-col md:flex-row md:items-start justify-between gap-6">
         <div>
-            <?php if (!empty($family['special_case']) && $family['special_case'] !== 'عادية'): ?>
-                <div class="mb-2">
-                    <span class="text-xs font-bold px-2.5 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 rounded-full">
-                        <?= htmlspecialchars($family['special_case']) ?>
-                    </span>
+            <?php if (!empty($family['special_case']) && $family['special_case'] !== 'عادية' || !empty($family['housing_type']) || !empty($family['economic_status']) || !empty($family['health_status'])): ?>
+                <div class="flex flex-wrap gap-2 mb-2">
+                    <?php if (!empty($family['special_case']) && $family['special_case'] !== 'عادية'): ?>
+                        <span class="text-xs font-bold px-2.5 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 rounded-full">
+                            <?= htmlspecialchars($family['special_case']) ?>
+                        </span>
+                    <?php endif; ?>
+                    <?php if (!empty($family['housing_type'])): ?>
+                        <span class="text-xs font-bold px-2.5 py-0.5 bg-slate-100 text-slate-700 border border-slate-200 rounded-full">
+                            <i class="fas fa-home ml-1 text-church-gold"></i> السكن: <?= htmlspecialchars($family['housing_type']) ?>
+                        </span>
+                    <?php endif; ?>
+                    <?php if (!empty($family['economic_status'])): ?>
+                        <span class="text-xs font-bold px-2.5 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full">
+                            الحالة الاقتصادية: <?= htmlspecialchars($family['economic_status']) ?>
+                        </span>
+                    <?php endif; ?>
+                    <?php if (!empty($family['health_status'])): ?>
+                        <span class="text-xs font-bold px-2.5 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-full">
+                            الحالة الصحية: <?= htmlspecialchars($family['health_status']) ?>
+                        </span>
+                    <?php endif; ?>
                 </div>
             <?php endif; ?>
             <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900"><?= htmlspecialchars($family['family_name']) ?></h1>
